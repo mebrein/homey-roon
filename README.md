@@ -41,3 +41,4 @@ This app is still in development. The following things are being worked on
 
 # Version history
 0.1.0 - initial version
+0.2.0 - beta
