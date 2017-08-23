@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Roon</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon"/>
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
+    <style>
+        body {
+            margin: 0px
+        }
+    </style>
+</head>
+<body>
+<div id="root"></div>
+<script crossorigin src="https://unpkg.com/react@15/dist/react.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@15/dist/react-dom.min.js"></script>
+<script>
+  function Image(props) {
+    return React.createElement('center', {}, React.createElement('img', { src: props.src, align: 'middle' }))
+  }
+
+  function getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    const regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+      results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+  }
+
+  const output = getParameterByName('output')
+  if (output){
+    const src = '/app/nl.mebrein.homeyroon/userdata/' + output + '.jpg'
+    setInterval(() => {
+      ReactDOM.render(
+        React.createElement(
+          Image,
+          { src: src + '?rand=' + Math.random() }
+        ),
+        document.getElementById('root'))
+    }, 2000)
+  }
+  else {
+    fetch('/api/app/nl.mebrein.homeyroon/outputs').then(response => {
+      if (response.status === 200) {
+        response.json().then(data => {
+            const src = '/app/nl.mebrein.homeyroon/userdata/' + data.result[0] + '.jpg'
+            setInterval(() => {
+              ReactDOM.render(
+                React.createElement(
+                  Image,
+                  { src: src + '?rand=' + Math.random() }
+                ),
+                document.getElementById('root'))
+            }, 2000)
+          }
+        )
+      }
+    })
+  }
+</script>
+</body>
+
+</html>
