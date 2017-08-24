@@ -146,7 +146,8 @@
     {
       "id": "output",
       "name": {
-        "en": "Roon"
+        "en": "Output",
+        "nl": "Output"
       },
       "images": {
         "large": "/drivers/output/assets/images/large.png",
