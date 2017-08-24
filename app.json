@@ -20,8 +20,8 @@
     "email": "mmourik@gmail.com"
   },
   "images": {
-    "large": "/assets/images/large.jpg",
-    "small": "/assets/images/small.jpg"
+    "large": "/assets/images/large.png",
+    "small": "/assets/images/small.png"
   },
   "flow": {
     "triggers": [
@@ -149,8 +149,8 @@
         "en": "Roon"
       },
       "images": {
-        "large": "/drivers/output/assets/images/large.jpg",
-        "small": "/drivers/output/assets/images/small.jpg"
+        "large": "/drivers/output/assets/images/large.png",
+        "small": "/drivers/output/assets/images/small.png"
       },
       "class": "speaker",
       "capabilities": ["speaker_playing", "speaker_next", "speaker_prev", "volume_set", "volume_up", "volume_down", "volume_mute"],
