@@ -21,9 +21,9 @@ class RoonOutputDevice extends Homey.Device {
     this.registerCapabilityListener('speaker_playing', this.onCapabilitySpeakerPlaying.bind(this)) //play/pause
     this.registerCapabilityListener('speaker_next', this.onCapabilitySpeakerNext.bind(this))
     this.registerCapabilityListener('speaker_prev', this.onCapabilitySpeakerPrev.bind(this))
-    this.registerCapabilityListener('volume_set', this.onCapabilityVolumeSet.bind(this))
-    this.registerCapabilityListener('volume_up', this.onCapabilityVolumeUp.bind(this))
-    this.registerCapabilityListener('volume_down', this.onCapabilityVolumeDown.bind(this))
+    //this.registerCapabilityListener('volume_set', this.onCapabilityVolumeSet.bind(this))
+    //this.registerCapabilityListener('volume_up', this.onCapabilityVolumeUp.bind(this))
+    //this.registerCapabilityListener('volume_down', this.onCapabilityVolumeDown.bind(this))
     this.registerCapabilityListener('volume_mute', this.onCapabilityVolumeMute.bind(this))
 
     this.songChangeTrigger = await new Homey.FlowCardTriggerDevice('song_change').register()
