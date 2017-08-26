@@ -121,12 +121,6 @@ class RoonOutputDriver extends Homey.Driver {
         core_unpaired: core => {
           this.log('Roon Core is unpairing...')
 
-          delete this.core
-          delete this.transport
-          delete this.image
-          delete this.zones
-          delete this.outputs
-
           unPairedTrigger.trigger({ core_name: core.display_name, core_version: core.display_version })
           this.getDevices().map(device => {
             device.setUnavailable()

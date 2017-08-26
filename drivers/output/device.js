@@ -26,10 +26,6 @@ class RoonOutputDevice extends Homey.Device {
     this.registerCapabilityListener('volume_down', this.onCapabilityVolumeDown.bind(this))
     this.registerCapabilityListener('volume_mute', this.onCapabilityVolumeMute.bind(this))
 
-    // custom listener
-    this.registerCapabilityListener('speaker_stop', this.onCapabilitySpeakerStop.bind(this)) //stop
-    this.registerCapabilityListener('speaker_convenience', this.onCapabilitySpeakerConvenience.bind(this)) //stop
-
     this.songChangeTrigger = await new Homey.FlowCardTriggerDevice('song_change').register()
 
     this.getDriver().roonEmitter
@@ -52,31 +48,11 @@ class RoonOutputDevice extends Homey.Device {
     this.log('device deleted')
   }
 
-  onCapabilitySpeakerStop(value, opts, callback) {
-    this.getDriver().transport.control(this.getData().id, 'stop', err => {
-      if (err) {
-        this.log(err)
-        return Promise.reject(new Error('Stopping output failed failed!' + err))
-      }
-      callback(null)
-    })
-  }
-
-  onCapabilitySpeakerConvenience(value, opts, callback) {
-    this.getDriver().transport.convenience_switch(this.getData().id, null, err => {
-      if (err) {
-        this.log(err)
-        return Promise.reject(new Error('Convenience switching the output failed!' + err))
-      }
-      callback(null)
-    })
-  }
-
   onCapabilitySpeakerPlaying(value, opts, callback) {
     const action = value ? 'play' : 'pause'
     this.getDriver().transport.control(this.getData().id, action, err => {
       if (err) {
-        return Promise.reject(new Error('Setting speaker playing to '+action+' failed!' + err))
+        return Promise.reject(new Error('Setting speaker playing to ' + action + ' failed!' + err))
       }
       callback(null)
     })
@@ -227,15 +203,34 @@ class RoonOutputDevice extends Homey.Device {
   }
 
   getImage(image_key) {
-    const widthSetting = Number(Homey.ManagerSettings.get('coverArtWidth'))
-    const heightSetting = Number(Homey.ManagerSettings.get('coverArtHeight'))
+    const widthSetting = Homey.ManagerSettings.get('coverArtWidth')
+    const heightSetting = Homey.ManagerSettings.get('coverArtHeight')
+
+    // TODO: refactor this
+    let width = 720
+    let height = 720
+
+    try {
+      width = Number(widthSetting)
+      height = Number(heightSetting)
+    }
+    catch (err) {
+      width = 720
+      height = 720
+    }
+
+    if (width === 0)
+      width = 720
+    if (height === 0)
+      height = 720
+
     return new Promise((resolve, reject) => {
       this.getDriver().image.get_image(
         image_key,
         {
           scale: 'fit',
-          width: widthSetting,
-          height: heightSetting,
+          width: width,
+          height: height,
           format: 'image/jpeg'
         },
         (err, contentType, buffer) => {
@@ -259,7 +254,7 @@ class RoonOutputDevice extends Homey.Device {
   getIpAddress() {
     // get ip address
     const ifaces = require('os').networkInterfaces()
-    let address = ""
+    let address = ''
 
     Object.keys(ifaces).forEach(dev => {
       ifaces[dev].filter(details => {

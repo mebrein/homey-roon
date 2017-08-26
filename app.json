@@ -140,57 +140,7 @@
           "nl": "Roon !{{is|is niet}} gekoppeld"
         }
       }
-    ],
-    "actions": [
-      {
-        "id":"speaker_stop",
-        "title":{
-          "en":"Stop",
-          "nl":"Stop"
-        },
-        "args":[
-          {
-            "name":"my_device",
-            "type":"device",
-            "filter":"driver_id=output"
-          }
-        ]
-      },
-      {
-        "id":"speaker_convenience",
-        "title":{
-          "en":"Convenience switch",
-          "nl":"Convenience switch"
-        },
-        "args":[
-          {
-            "name":"my_device",
-            "type":"device",
-            "filter":"driver_id=output"
-          }
-        ]
-      }
     ]
-  },
-  "capabilities": {
-    "speaker_stop": {
-      "type": "boolean",
-      "title": {
-        "en": "Stop",
-        "nl": "Stoppen"
-      },
-      "getable": false,
-      "setable": true
-    },
-    "speaker_convenience": {
-      "type": "boolean",
-      "title": {
-        "en": "Convenience switch",
-        "nl": "Convenience switch"
-      },
-      "getable": false,
-      "setable": true
-    }
   },
   "drivers": [
     {
@@ -211,9 +161,7 @@
         "volume_set",
         "volume_up",
         "volume_down",
-        "volume_mute",
-        "speaker_stop",
-        "speaker_convenience"
+        "volume_mute"
       ],
       "pair": [
         {
