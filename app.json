@@ -158,9 +158,6 @@
         "speaker_playing",
         "speaker_next",
         "speaker_prev",
-        "volume_set",
-        "volume_up",
-        "volume_down",
         "volume_mute"
       ],
       "pair": [
