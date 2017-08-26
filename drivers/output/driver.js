@@ -61,6 +61,7 @@ class RoonOutputDriver extends Homey.Driver {
           this.image = core.services.RoonApiImage
 
           this.transport.subscribe_zones((cmd, data) => {
+            if (!data) return
             if (cmd === 'Subscribed') {
               this.log(`Core found: ${core.core_id}`)
 
@@ -127,6 +128,7 @@ class RoonOutputDriver extends Homey.Driver {
           })
 
           this.log('Roon Core unpaired successfully.')
+
         }
       }
     )
