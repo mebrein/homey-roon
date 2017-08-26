@@ -20,8 +20,8 @@
     "email": "mmourik@gmail.com"
   },
   "images": {
-    "large": "/assets/images/large.png",
-    "small": "/assets/images/small.png"
+    "large": "/assets/images/large.jpg",
+    "small": "/assets/images/small.jpg"
   },
   "flow": {
     "triggers": [
