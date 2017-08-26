@@ -19,29 +19,66 @@
     -->
 </p>
 <fieldset>
-    <legend>My Settings</legend>
-    <!--
+    <legend data-i18n="settings.legendVolume"></legend>
     <div class="field row">
-        <label for="username">Username</label>
-        <input id="username" type="text" value="" />
+        <label data-i18n="settings.maxVolumePercentage" for="maxVolumePercentage"></label>
+        <input id="maxVolumePercentage" type="number" value="50" />
+    </div>
+</fieldset>
+
+<fieldset>
+    <legend data-i18n="settings.legendCoverArt"></legend>
+    <div class="field row">
+        <label data-i18n="settings.coverArtWidth" for="coverArtWidth"></label>
+        <input id="coverArtWidth" type="number" value="720" min="1" max="7680" />
     </div>
     <div class="field row">
-        <label for="password">Password</label>
-        <input id="password" type="password" value="" />
+        <label data-i18n="settings.coverArtHeight" for="coverArtHeight"></label>
+        <input id="coverArtHeight" type="number" value="720" min="1" max="4320" />
     </div>
-    -->
 
 </fieldset>
 
-<script>
+<button id="save" class="right">Save changes</button>
+
+<script type="text/javascript">
+
   function onHomeyReady( Homey ){
-    // make a PUT call to /api/app/com.your.app/hello
-    Homey.api('GET', '/outputs', function( err, result ) {
-      if( err ) return Homey.alert(err);
-      //Homey.alert(result)
-    });
 
     Homey.ready();
+
+    var maxVolumePercentageElement = document.getElementById('maxVolumePercentage');
+    var coverArtWidthElement = document.getElementById('coverArtWidth');
+    var coverArtHeightElement = document.getElementById('coverArtHeight');
+    var saveElement = document.getElementById('save');
+
+    Homey.get('maxVolumePercentage', function( err, maxVolumePercentage ) {
+      if( err ) return Homey.alert( err );
+      maxVolumePercentageElement.value = maxVolumePercentage;
+    });
+
+    Homey.get('coverArtWidth', function( err, coverArtWidth ) {
+      if( err ) return Homey.alert( err );
+      coverArtWidthElement.value = coverArtWidth;
+    });
+
+    Homey.get('coverArtHeight', function( err, coverArtHeight ) {
+      if( err ) return Homey.alert( err );
+      coverArtHeightElement.value = coverArtHeight;
+    });
+
+    saveElement.addEventListener('click', function(e) {
+      Homey.set('maxVolumePercentage', maxVolumePercentageElement.value, function( err ){
+        if( err ) return Homey.alert( err );
+      });
+      Homey.set('coverArtWidth', coverArtWidthElement.value, function( err ){
+        if( err ) return Homey.alert( err );
+      });
+      Homey.set('coverArtHeight', coverArtHeightElement.value, function( err ){
+        if( err ) return Homey.alert( err );
+      });
+
+    });
   }
 </script>
 </body>

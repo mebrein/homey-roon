@@ -1,1 +1,12 @@
-{}
+{
+  "settings":{
+    "title":"Instellingen",
+    "subtitle":"Configureer de instellingen voor Roon",
+    "intro":"Configureer instellingen voor Roon",
+    "legendVolume":"Volume",
+    "maxVolumePercentage":"Maximum volume (%)",
+    "legendCoverArt":"Cover art",
+    "coverArtWidth":"Breedte (pixels)",
+    "coverArtHeight":"Hoogte (pixels)"
+  }
+}

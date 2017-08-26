@@ -18,7 +18,7 @@ class RoonOutputDevice extends Homey.Device {
     this.outputRemoved = this.outputRemoved.bind(this)
 
     // add the listeners
-    this.registerCapabilityListener('speaker_playing', this.onCapabilitySpeakerPlaying.bind(this))
+    this.registerCapabilityListener('speaker_playing', this.onCapabilitySpeakerPlaying.bind(this)) //play/pause
     this.registerCapabilityListener('speaker_next', this.onCapabilitySpeakerNext.bind(this))
     this.registerCapabilityListener('speaker_prev', this.onCapabilitySpeakerPrev.bind(this))
     this.registerCapabilityListener('volume_set', this.onCapabilityVolumeSet.bind(this))
@@ -26,8 +26,11 @@ class RoonOutputDevice extends Homey.Device {
     this.registerCapabilityListener('volume_down', this.onCapabilityVolumeDown.bind(this))
     this.registerCapabilityListener('volume_mute', this.onCapabilityVolumeMute.bind(this))
 
+    // custom listener
+    this.registerCapabilityListener('speaker_stop', this.onCapabilitySpeakerStop.bind(this)) //stop
+    this.registerCapabilityListener('speaker_convenience', this.onCapabilitySpeakerConvenience.bind(this)) //stop
+
     this.songChangeTrigger = await new Homey.FlowCardTriggerDevice('song_change').register()
-    //let songChangeTrigger = await new Homey.FlowCardTriggerDevice('song_change').register()
 
     this.getDriver().roonEmitter
       .on('output_added', this.outputAdded)
@@ -49,34 +52,52 @@ class RoonOutputDevice extends Homey.Device {
     this.log('device deleted')
   }
 
+  onCapabilitySpeakerStop(value, opts, callback) {
+    this.getDriver().transport.control(this.getData().id, 'stop', err => {
+      if (err) {
+        this.log(err)
+        return Promise.reject(new Error('Stopping output failed failed!' + err))
+      }
+      callback(null)
+    })
+  }
+
+  onCapabilitySpeakerConvenience(value, opts, callback) {
+    this.getDriver().transport.convenience_switch(this.getData().id, null, err => {
+      if (err) {
+        this.log(err)
+        return Promise.reject(new Error('Convenience switching the output failed!' + err))
+      }
+      callback(null)
+    })
+  }
+
   onCapabilitySpeakerPlaying(value, opts, callback) {
-    callback(null)
-    // this.getDriver().transport.control('zone/output', 'next', err => {
-    //   if (err) {
-    //     return Promise.reject(new Error('Advance to next track failed!' + err))
-    //   }
-    //   callback(null)
-    // })
+    const action = value ? 'play' : 'pause'
+    this.getDriver().transport.control(this.getData().id, action, err => {
+      if (err) {
+        return Promise.reject(new Error('Setting speaker playing to '+action+' failed!' + err))
+      }
+      callback(null)
+    })
   }
 
   onCapabilitySpeakerNext(value, opts, callback) {
-    callback(null)
-    // this.getDriver().transport.control('zone/output', 'next', err => {
-    //   if (err) {
-    //     return Promise.reject(new Error('Advance to next track failed!' + err))
-    //   }
-    //   callback(null)
-    // })
+    this.getDriver().transport.control(this.getData().id, 'next', err => {
+      if (err) {
+        return Promise.reject(new Error('Advance to next track failed!' + err))
+      }
+      callback(null)
+    })
   }
 
   onCapabilitySpeakerPrev(value, opts, callback) {
-    callback(null)
-    // this.getDriver().transport.control('zone/output', 'previous', err => {
-    //   if (err) {
-    //     return Promise.reject(new Error('Going to previous track failed!' + err))
-    //   }
-    //   callback(null)
-    // })
+    this.getDriver().transport.control(this.getData().id, 'previous', err => {
+      if (err) {
+        return Promise.reject(new Error('Going back to previous track failed!' + err))
+      }
+      callback(null)
+    })
   }
 
   onCapabilityVolumeSet(value, opts, callback) {
@@ -111,7 +132,7 @@ class RoonOutputDevice extends Homey.Device {
 
   onCapabilityVolumeMute(value, opts, callback) {
     const action = value ? 'mute' : 'unmute'
-    this.getDriver().transport.mute(this.getData().id, action, (err) => {
+    this.getDriver().transport.mute(this.getData().id, action, err => {
       if (err) {
         return Promise.reject(new Error('Muting the output failed!' + err))
       }
@@ -135,7 +156,10 @@ class RoonOutputDevice extends Homey.Device {
 
       if (!(output.outputId === this.getData().id)) return
 
-      this.log(`Received info for output ${output.displayName} (${output.state})`)
+      const zoneId = output.zoneId
+      this.setStoreValue('zoneId', zoneId)
+
+      this.log(`${output.displayName} (${output.state})`)
 
       if (output.hasOwnProperty('isMuted')) {
         const isMuted = output.isMuted
@@ -190,24 +214,10 @@ class RoonOutputDevice extends Homey.Device {
       await i.register()
       this.log('Image registered')
 
-      // get ip address
-      const ifaces = require('os').networkInterfaces();
-      let address;
-
-      Object.keys(ifaces).forEach(dev => {
-        ifaces[dev].filter(details => {
-          if (details.family === 'IPv4' && details.internal === false) {
-            address = details.address;
-          }
-        });
-      });
-
-      this.log('IP address: ' + address)
-
       await this.songChangeTrigger.trigger(this, {
         'now_playing': newSong,
         'cover_image': i,
-        'image_url': 'http://' + address + '/app/nl.mebrein.homeyroon/?output=' + output.outputId
+        'image_url': 'http://' + this.getIpAddress() + '/app/nl.mebrein.homeyroon/?output=' + output.outputId
       })
       this.log('Fired songChangeTrigger')
     }
@@ -217,13 +227,15 @@ class RoonOutputDevice extends Homey.Device {
   }
 
   getImage(image_key) {
+    const widthSetting = Number(Homey.ManagerSettings.get('coverArtWidth'))
+    const heightSetting = Number(Homey.ManagerSettings.get('coverArtHeight'))
     return new Promise((resolve, reject) => {
       this.getDriver().image.get_image(
         image_key,
         {
           scale: 'fit',
-          width: 720,
-          height: 720,
+          width: widthSetting,
+          height: heightSetting,
           format: 'image/jpeg'
         },
         (err, contentType, buffer) => {
@@ -239,9 +251,24 @@ class RoonOutputDevice extends Homey.Device {
       fs.writeFile(fileName, fileContent, 'binary', err => {
         if (err)
           reject(err)
-        resolve('Mission accomplished')
+        resolve('File written')
       })
     })
+  }
+
+  getIpAddress() {
+    // get ip address
+    const ifaces = require('os').networkInterfaces()
+    let address = ""
+
+    Object.keys(ifaces).forEach(dev => {
+      ifaces[dev].filter(details => {
+        if (details.family === 'IPv4' && details.internal === false) {
+          address = details.address
+        }
+      })
+    })
+    return address
   }
 }
 

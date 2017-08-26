@@ -38,18 +38,19 @@ class RoonOutputDriver extends Homey.Driver {
     const pairedTrigger = new Homey.FlowCardTrigger('core_paired').register()
     const unPairedTrigger = new Homey.FlowCardTrigger('core_unpaired').register()
 
+    // todo: retrieve version from Homey app
+    //const apiVersion = Homey.ManagerApi.
+
     const roon = new RoonApi({
         extension_id: 'nl.mebrein.homeyroon',
         display_name: 'Athom Homey',
-        display_version: '0.1.0',
+        display_version: '0.2.0',
         publisher: 'Merijn van Mourik',
         email: 'mmourik@gmail.com',
         log_level: 'none',
         website: 'https://github.com/mebrein/homeyroon',
         get_persisted_state: () => (Homey.ManagerSettings.get('roonstate') || {}),
-        set_persisted_state: state => {
-          Homey.ManagerSettings.set('roonstate', state)
-        },
+        set_persisted_state: state => {Homey.ManagerSettings.set('roonstate', state)},
 
         core_paired: core => {
           this.log('Roon core is pairing...')
@@ -61,18 +62,14 @@ class RoonOutputDriver extends Homey.Driver {
 
           this.transport.subscribe_zones((cmd, data) => {
             if (cmd === 'Subscribed') {
-              this.log(`Action: Subscribed`)
               this.log(`Core found: ${core.core_id}`)
 
               this.zones = data.zones.reduce((result, value) => {
                 result[value.zone_id] = value
                 return result
               }, {})
-
-              this.log('Zone keys: ' + Object.keys(this.zones))
             }
             else if (cmd = 'Changed') {
-              this.log('Action: Changed')
               if (data.zones_removed) {
                 data.zones_removed.forEach(z => {
                   this.log('Zone removed: ' + z)
@@ -85,7 +82,6 @@ class RoonOutputDriver extends Homey.Driver {
               })
               if (data.zones_changed) {
                 data.zones_changed.forEach(z => {
-                  this.log('Zone changed: ' + z.zone_id)
                   this.zones[z.zone_id] = z
                 })
               }
@@ -103,7 +99,6 @@ class RoonOutputDriver extends Homey.Driver {
                   this.roonEmitter.emit('output_added', o.outputId)
                 }
                 else {
-                  this.log(`Output changed: ${o.displayName} (${o.state}) zone ${o.zoneId} output ${o.outputId}`)
                   this.roonEmitter.emit('output_changed', JSON.stringify(o))
                 }
               })
@@ -171,9 +166,7 @@ class RoonOutputDriver extends Homey.Driver {
         }
       )
     })
-    console.log(JSON.stringify(pairList,null,2))
     callback(null,pairList)
-
   }
 }
 
@@ -207,6 +200,5 @@ const zoneReducer = (result, zone) => {
   })
   return result
 }
-
 
 module.exports = RoonOutputDriver

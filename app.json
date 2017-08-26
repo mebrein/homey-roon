@@ -13,7 +13,7 @@
     "nl": "App voor Homey om Roon te bedienen."
   },
   "category": "music",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "compatibility": ">=1.5.0",
   "author": {
     "name": "Merijn van Mourik",
@@ -104,27 +104,27 @@
             "filter": "driver_id=output"
           }
         ],
-        "tokens":[
+        "tokens": [
           {
-            "name":"now_playing",
+            "name": "now_playing",
             "type": "string",
-            "title":{
+            "title": {
               "en": "Song",
               "nl": "Nummer"
             }
           },
           {
-            "name":"cover_image",
-            "type":"image",
-            "title":{
-              "en":"Cover image",
-              "nl":"Cover image"
+            "name": "cover_image",
+            "type": "image",
+            "title": {
+              "en": "Cover image",
+              "nl": "Cover image"
             }
           },
           {
-            "name":"image_url",
+            "name": "image_url",
             "type": "string",
-            "title":{
+            "title": {
               "en": "Url",
               "nl": "Url"
             }
@@ -140,7 +140,57 @@
           "nl": "Roon !{{is|is niet}} gekoppeld"
         }
       }
+    ],
+    "actions": [
+      {
+        "id":"speaker_stop",
+        "title":{
+          "en":"Stop",
+          "nl":"Stop"
+        },
+        "args":[
+          {
+            "name":"my_device",
+            "type":"device",
+            "filter":"driver_id=output"
+          }
+        ]
+      },
+      {
+        "id":"speaker_convenience",
+        "title":{
+          "en":"Convenience switch",
+          "nl":"Convenience switch"
+        },
+        "args":[
+          {
+            "name":"my_device",
+            "type":"device",
+            "filter":"driver_id=output"
+          }
+        ]
+      }
     ]
+  },
+  "capabilities": {
+    "speaker_stop": {
+      "type": "boolean",
+      "title": {
+        "en": "Stop",
+        "nl": "Stoppen"
+      },
+      "getable": false,
+      "setable": true
+    },
+    "speaker_convenience": {
+      "type": "boolean",
+      "title": {
+        "en": "Convenience switch",
+        "nl": "Convenience switch"
+      },
+      "getable": false,
+      "setable": true
+    }
   },
   "drivers": [
     {
@@ -154,7 +204,17 @@
         "small": "/drivers/output/assets/images/small.png"
       },
       "class": "speaker",
-      "capabilities": ["speaker_playing", "speaker_next", "speaker_prev", "volume_set", "volume_up", "volume_down", "volume_mute"],
+      "capabilities": [
+        "speaker_playing",
+        "speaker_next",
+        "speaker_prev",
+        "volume_set",
+        "volume_up",
+        "volume_down",
+        "volume_mute",
+        "speaker_stop",
+        "speaker_convenience"
+      ],
       "pair": [
         {
           "id": "list_devices",
@@ -172,14 +232,9 @@
         "components": [
           {
             "id": "icon",
-            "capabilities": [ "volume_mute" ]
-          },
-          {
-            "id": "toggle",
-            "capabilities": [ "volume_mute" ],
-            "options": {
-              "showTitle": true
-            }
+            "capabilities": [
+              "volume_mute"
+            ]
           }
         ]
       }
