@@ -14,23 +14,23 @@ class RoonEmitter extends EventEmitter {
 
 class RoonOutputDriver extends Homey.Driver {
 
-  getCore() {
-    if (this.core)
-      return this
-    return null
-  }
-
   onInit() {
 
     this.core = null
-    this.zones = {}
-    this.outputs = []
+    this.zones = {} // copy of the zones as retrieved by roon
+    this.outputs = [] // flattened array of unique outputs
+
+    this.log('Setting all outputs to unavailable')
+    this.getDevices().map(device => {
+      device.setUnavailable()
+    })
 
     this.roonEmitter = new RoonEmitter()
 
     this.onPairListDevices = this.onPairListDevices.bind(this)
 
     const pairedCondition = new Homey.FlowCardCondition('is_paired').register()
+
     pairedCondition.registerRunListener((args, state) => {
       return Promise.resolve(this.paired)
     })
@@ -50,7 +50,9 @@ class RoonOutputDriver extends Homey.Driver {
         log_level: 'none',
         website: 'https://github.com/mebrein/homeyroon',
         get_persisted_state: () => (Homey.ManagerSettings.get('roonstate') || {}),
-        set_persisted_state: state => {Homey.ManagerSettings.set('roonstate', state)},
+        set_persisted_state: state => {
+          Homey.ManagerSettings.set('roonstate', state)
+        },
 
         core_paired: core => {
           this.log('Roon core is pairing...')
@@ -61,10 +63,15 @@ class RoonOutputDriver extends Homey.Driver {
           this.image = core.services.RoonApiImage
 
           this.transport.subscribe_zones((cmd, data) => {
-            if (!data) return
+
+            if (!data) return // when unpaired in the settings in roon, data is undefined
+
+            // Sanitizing step 1: get the latest state of the zones in this.zones
             if (cmd === 'Subscribed') {
+              this.log('Command: Subscribed')
               this.log(`Core found: ${core.core_id}`)
 
+              // just fill the zones object with the current data
               this.zones = data.zones.reduce((result, value) => {
                 result[value.zone_id] = value
                 return result
@@ -86,35 +93,38 @@ class RoonOutputDriver extends Homey.Driver {
                   this.zones[z.zone_id] = z
                 })
               }
-
-              // in homey outputs are mapped to devices
-              const newOutputs = Object.keys(this.zones).map(zoneId => this.zones[zoneId]).reduce(zoneReducer, [])
-
-              const newOutputIds = newOutputs.map(o => o.outputId)
-              const oldOutputIds = this.outputs.map(o => o.outputId)
-
-              // find out which outputs are added
-              newOutputs.forEach(o => {
-                if (!oldOutputIds.includes(o.outputId)) {
-                  this.log(`Output added: ${o.displayName} (${o.state}) zone ${o.zoneId} output ${o.outputId}`)
-                  this.roonEmitter.emit('output_added', o.outputId)
-                }
-                else {
-                  this.roonEmitter.emit('output_changed', JSON.stringify(o))
-                }
-              })
-
-              // find out which outputs are removed
-              this.outputs.forEach(o => {
-                if (!newOutputIds.includes(o.outputId)) {
-                  this.roonEmitter.emit('output_removed', o.outputId)
-                  this.log(`Output removed: ${o.displayName} (${o.state}) zone ${o.zoneId} output ${o.outputId}`)
-                } // the id of the old output is enough
-              })
-
-              this.outputs = newOutputs
             }
+
+            // SECOND PART OF SANITIZING: FILL THE OUTPUTS
+
+            // in homey outputs are mapped to devices
+            const newOutputs = Object.keys(this.zones).map(zoneId => this.zones[zoneId]).reduce(zoneReducer, [])
+
+            const newOutputIds = newOutputs.map(o => o.outputId)
+            const oldOutputIds = this.outputs.map(o => o.outputId)
+
+            // find out which outputs are added
+            newOutputs.forEach(o => {
+              if (!oldOutputIds.includes(o.outputId)) {
+                this.log(`Output added: ${o.displayName} (${o.state}) zone ${o.zoneId} output ${o.outputId}`)
+                this.roonEmitter.emit('output_added', o.outputId)
+              }
+              else {
+                this.roonEmitter.emit('output_changed', JSON.stringify(o))
+              }
+            })
+
+            // find out which outputs are removed
+            this.outputs.forEach(o => {
+              if (!newOutputIds.includes(o.outputId)) {
+                this.log(`Output removed: ${o.displayName} (${o.state}) zone ${o.zoneId} output ${o.outputId}`)
+                this.roonEmitter.emit('output_removed', o.outputId)
+              } // the id of the old output is enough
+            })
+
+            this.outputs = newOutputs
           })
+
           pairedTrigger.trigger({ core_name: core.display_name, core_version: core.display_version })
           this.log('Roon core paired successfully!')
         },
@@ -123,12 +133,13 @@ class RoonOutputDriver extends Homey.Driver {
           this.log('Roon Core is unpairing...')
 
           unPairedTrigger.trigger({ core_name: core.display_name, core_version: core.display_version })
+
+          // set all devices unavailable
           this.getDevices().map(device => {
             device.setUnavailable()
           })
 
           this.log('Roon Core unpaired successfully.')
-
         }
       }
     )
@@ -162,7 +173,7 @@ class RoonOutputDriver extends Homey.Driver {
         }
       )
     })
-    callback(null,pairList)
+    callback(null, pairList)
   }
 }
 

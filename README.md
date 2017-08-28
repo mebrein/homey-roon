@@ -42,10 +42,11 @@ The following functionality is planned
 - action for turning in on a radio stream on Roon
 
 # Version history
-0.2.0 - several improvements
-better artwork for the appstore
+0.2.0
+better image for appstore
 settings implemented
 more controls implemented
+device state reflects
 
-0.1.0 - initial version
+0.1.0
 initial version
