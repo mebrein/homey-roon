@@ -37,6 +37,10 @@ The following functionality is planned
 - action for turning in on a radio stream on Roon
 
 # Version history
+0.2.1
+fixed link to github
+incorporated bugfix from node-roon-api and node-roon-api-transport
+
 0.2.0
 better image for appstore
 settings implemented
