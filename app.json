@@ -63,10 +63,6 @@
             "title": {
               "en": "Name",
               "nl": "Naam"
-            },
-            "example": {
-              "en": "ROCK",
-              "nl": "ROCK"
             }
           },
           {
@@ -75,10 +71,6 @@
             "title": {
               "en": "Version",
               "nl": "Versie"
-            },
-            "example": {
-              "en": "1.3 (build 247)",
-              "nl": "1.3 (build 247)"
             }
           }
         ]
