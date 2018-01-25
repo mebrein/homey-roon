@@ -44,7 +44,7 @@ class RoonOutputDriver extends Homey.Driver {
     const roon = new RoonApi({
         extension_id: 'nl.mebrein.homeyroon',
         display_name: 'Athom Homey',
-        display_version: '0.2.0',
+        display_version: '0.2.1',
         publisher: 'Merijn van Mourik',
         email: 'mmourik@gmail.com',
         log_level: 'none',
