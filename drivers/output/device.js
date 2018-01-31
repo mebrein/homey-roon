@@ -135,7 +135,7 @@ class RoonOutputDevice extends Homey.Device {
       const zoneId = output.zoneId
       this.setStoreValue('zoneId', zoneId)
 
-      this.log(`${output.displayName} (${output.state})`)
+      // this.log(`${output.displayName} (${output.state})`)
 
       if (output.hasOwnProperty('isMuted')) {
         const isMuted = output.isMuted

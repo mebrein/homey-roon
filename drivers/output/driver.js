@@ -21,9 +21,9 @@ class RoonOutputDriver extends Homey.Driver {
     this.outputs = [] // flattened array of unique outputs
 
     this.log('Setting all outputs to unavailable')
-    this.getDevices().map(device => {
-      device.setUnavailable()
-    })
+    // this.getDevices().map(device => {
+    //   device.setUnavailable()
+    // })
 
     this.roonEmitter = new RoonEmitter()
 
@@ -48,7 +48,7 @@ class RoonOutputDriver extends Homey.Driver {
         publisher: 'Merijn van Mourik',
         email: 'mmourik@gmail.com',
         log_level: 'none',
-        website: 'https://github.com/mebrein/node-homey-roon',
+        website: 'https://apps.athom.com/app/nl.mebrein.homeyroon',
         get_persisted_state: () => (Homey.ManagerSettings.get('roonstate') || {}),
         set_persisted_state: state => {
           Homey.ManagerSettings.set('roonstate', state)
