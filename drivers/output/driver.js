@@ -21,9 +21,9 @@ class RoonOutputDriver extends Homey.Driver {
     this.outputs = [] // flattened array of unique outputs
 
     this.log('Setting all outputs to unavailable')
-    this.getDevices().map(device => {
-      device.setUnavailable()
-    })
+    // this.getDevices().map(device => {
+    //   device.setUnavailable()
+    // })
 
     this.roonEmitter = new RoonEmitter()
 
